@@ -8,6 +8,19 @@ Cada vez que un cliente nos pide registrarnos como proveedor (entre 8 y 12 veces
 
 El flujo es sencillo. El chat (`web/index.html`) le envía cada mensaje al servidor por `POST /api/chat`. El servidor (`src/server.ts`) maneja las sesiones y le pasa el mensaje al ciclo del agente (`src/agente.ts`). El agente habla con el modelo a través de los adaptadores de `src/llm/` y ejecuta las herramientas de `src/tools/proveedor.ts`. Las herramientas leen de `fixtures/` y escriben en `out/`.
 
+```
+Navegador (web/index.html)
+      │  POST /api/chat
+      ▼
+Servidor (src/server.ts) ──► Ciclo del agente (src/agente.ts) ──► Modelo (src/llm/: Gemini, Groq o Anthropic)
+                                    │
+                                    ▼
+                         Herramientas (src/tools/proveedor.ts)
+                          │                          │
+                          ▼                          ▼
+                  lee fixtures/               escribe out/<caso>/
+```
+
 Separé el proyecto en tres partes según lo que cambia más seguido:
 
 - `agent/prompt.md` define el comportamiento: cómo habla el agente y en qué orden trabaja.
@@ -47,7 +60,7 @@ Un caso completo usa unas 5 llamadas al modelo. Medí el repositorio: el prompt 
 |---|---|---|---|
 | Gemini 3.1 Flash-Lite, plan gratuito | Gratis dentro de los límites | 0 | 0 |
 | GPT-OSS 120B en Groq, plan gratuito | Gratis dentro de los límites | 0 | 0 |
-| Claude Haiku 5.5 | USD 0,10 / 0,50 | unos USD 0,002 | unos USD 0,03 |
+| Claude Haiku 4.5 | USD 1 / 5 | unos USD 0,02 | unos USD 0,24 |
 | Claude Sonnet 5.5 | USD 2 / 10 | unos USD 0,04 | unos USD 0,48 |
 
 Los precios de Anthropic son los publicados en platform.claude.com/docs/en/about-claude/pricing. El consumo real de cada sesión se puede ver en `GET /api/sessions/:id`, en el campo `tokens`.

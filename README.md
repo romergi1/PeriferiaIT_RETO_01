@@ -36,7 +36,7 @@ Procesa los cuatro casos llamando directo a las herramientas, con la fecha fija 
 | `LLM_PROVIDER` | No | Proveedor que aparece seleccionado al abrir el chat: `gemini`, `groq` o `anthropic`. Si no se indica, se usa el primero que tenga clave. |
 | `GEMINI_MODEL` | No | Por defecto `gemini-3.1-flash-lite`. |
 | `GROQ_MODEL` | No | Por defecto `openai/gpt-oss-120b`. |
-| `ANTHROPIC_MODEL` | No | Por defecto `claude-haiku-5-5`. |
+| `ANTHROPIC_MODEL` | No | Por defecto `claude-haiku-4-5`. |
 | `MAX_ITERACIONES` | No | Máximo de idas y vueltas entre modelo y herramientas por mensaje. Por defecto 25. |
 | `MAX_TOKENS_SESION` | No | Máximo de tokens por sesión. Por defecto 200000. |
 | `PORT` | No | Puerto del servidor. Por defecto 7477. |

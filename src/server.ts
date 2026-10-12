@@ -26,7 +26,7 @@ const catalogo: { id: string; etiqueta: string; variableClave: string; crear: ()
         modelo: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
       }),
   },
-  { id: "anthropic", etiqueta: "Anthropic", variableClave: "ANTHROPIC_API_KEY", crear: () => crearAnthropic(process.env.ANTHROPIC_MODEL || "claude-haiku-5-5") },
+  { id: "anthropic", etiqueta: "Anthropic", variableClave: "ANTHROPIC_API_KEY", crear: () => crearAnthropic(process.env.ANTHROPIC_MODEL || "claude-haiku-4-5") },
 ]
 const proveedores = new Map(catalogo.filter((p) => process.env[p.variableClave]).map((p) => [p.id, { etiqueta: p.etiqueta, llm: p.crear() }]))
 // Si no hay ninguna clave, se deja Gemini para que el chat muestre el aviso de clave faltante.
