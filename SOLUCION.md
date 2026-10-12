@@ -110,11 +110,13 @@ Reparto de tareas propuesto:
 
 ## 9. Uso de IA
 
-> **Completar con tu experiencia real antes de entregar.**
+Usé Claude (Anthropic) desde Claude Code en VS Code. Con él comparé los tres retos para escoger uno, generé la base del código (herramientas, ciclo del agente, adaptadores y front) y el primer borrador de este documento y del README.
 
-- **Claude (Anthropic):** análisis comparativo de los tres retos, generación de la base del código (herramientas, ciclo del agente, front) y del borrador de esta documentación.
-- **Qué revisé y ajusté yo:** _(completar: por ejemplo, revisé cada herramienta contra el PRD, ejecuté la demo, probé el chat desplegado...)_
-- **Qué descarté de lo propuesto y por qué:** _(completar. Alternativas que se evaluaron y se descartaron: mapeo con el modelo, front en React, uso del SDK; ver la sección 6.)_
+También lo usé para revisar la entrega contra el PRD, buscar claves en el código y en el historial de git, agregar el `.dockerignore` para que el `.env` no quedara en la imagen de Docker, subir el proyecto a GitHub y desplegarlo en Render.
+
+Lo que verifiqué: corrí `demo.ts` dos veces y la salida fue la misma, probé el chat en local y en el link público con los casos del reto (también el bloqueo del envío sin confirmación) y revisé que el `.env` no estuviera en el repositorio.
+
+De lo que se propuso descarté tres cosas: mapear los campos con el modelo, porque puede inventar un valor; hacer el front en React, porque para una sola pantalla no hacía falta; y usar los SDK de cada proveedor, para no sumar dependencias. Las razones están en la sección 6.
 
 ## 10. Riesgos para producción
 
