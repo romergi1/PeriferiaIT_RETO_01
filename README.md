@@ -2,7 +2,7 @@
 
 Es un agente de chat que lee una solicitud de registro como proveedor, llena los campos con los datos del repositorio maestro, genera el formulario (Excel, PDF o valores para un portal) y arma el paquete para firma. No envía nada sin que una persona lo confirme.
 
-- Link de prueba: `https://_____completar_____`
+- Link de prueba: https://periferiait-reto-01.onrender.com/
 - Clave de acceso: no tiene, el link es público.
 
 ## Cómo correrlo en local
