@@ -1,0 +1,13 @@
+{
+  "identificador_por_pais": {
+    "CO": "NIT",
+    "EC": "RUC",
+    "PE": "RUC",
+    "PA": "RUC",
+    "HN": "RTN"
+  },
+  "etiquetas_ambiguas": [
+    "Identificación tributaria",
+    "Número de identificación fiscal"
+  ]
+}

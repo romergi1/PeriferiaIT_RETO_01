@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro como Proveedor</title>
+<style>
+  :root { --fondo:#f6f7f9; --panel:#fff; --texto:#1d2330; --suave:#667085; --borde:#e3e6eb; --acento:#2457d6;
+          --ok:#1f7a4d; --primario:#2457d6; --error:#b42318; --aviso-fondo:#fff7e0; --aviso-borde:#e0a800; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fondo:#14171c; --panel:#1d2128; --texto:#e7e9ee; --suave:#9aa3b2; --borde:#2d333d; --acento:#7aa2ff;
+            --ok:#5cc28f; --error:#ff8a80; --aviso-fondo:#3a3014; --aviso-borde:#d4a72c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui, sans-serif; background:var(--fondo); color:var(--texto); }
+  header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--borde); background:var(--panel); }
+  header h1 { font-size:17px; margin:0; }
+  header small { color:var(--suave); }
+  main { max-width:860px; margin:0 auto; padding:16px; padding-bottom:120px; }
+  .msg { padding:10px 14px; border-radius:10px; margin:10px 0; white-space:pre-wrap; word-wrap:break-word; border:1px solid var(--borde); background:var(--panel); }
+  .usuario { background:var(--primario); color:#fff; border:none; margin-left:15%; }
+  .confirmar { background:var(--aviso-fondo); border:2px solid var(--aviso-borde); }
+  .confirmar::before { content:"Requiere tu confirmación"; display:block; font-weight:600; margin-bottom:6px; }
+  .bienvenida { white-space:normal; }
+  .error { color:var(--error); }
+  details.tool { font-size:13px; margin:6px 0; padding:6px 10px; border:1px dashed var(--borde); border-radius:8px; background:var(--panel); }
+  details.tool summary { cursor:pointer; font-family:ui-monospace, monospace; }
+  details.tool pre { white-space:pre-wrap; word-break:break-all; margin:4px 0; color:var(--suave); }
+  .ok-tag { color:var(--ok); } .err-tag { color:var(--error); }
+  .chips button, .acciones button { margin:4px 6px 0 0; }
+  button { font:inherit; padding:6px 12px; border-radius:8px; border:1px solid var(--borde); background:var(--panel); color:var(--texto); cursor:pointer; }
+  button.primario { background:var(--primario); color:#fff; border:none; }
+  #pensando { color:var(--suave); font-style:italic; display:none; }
+  form { position:fixed; bottom:0; left:0; right:0; display:flex; gap:8px; padding:12px 16px; background:var(--panel); border-top:1px solid var(--borde); }
+  textarea { flex:1; font:inherit; padding:8px; border-radius:8px; border:1px solid var(--borde); background:var(--fondo); color:var(--texto); resize:none; }
+  a { color:var(--acento); }
+  .controles { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .controles label { color:var(--suave); font-size:13px; }
+  select { font:inherit; padding:6px 8px; border-radius:8px; border:1px solid var(--borde); background:var(--panel); color:var(--texto); }
+  .quien { display:block; font-size:12px; color:var(--suave); margin-bottom:4px; }
+  .confirmar .quien { margin-top:-2px; }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Registro como proveedor</h1><small id="modelo">conectando...</small></div>
+  <div class="controles">
+    <label for="proveedor">Modelo</label>
+    <select id="proveedor" aria-label="Proveedor del modelo"></select>
+    <button id="nueva">Nueva sesión</button>
+  </div>
+</header>
+
+<main>
+  <div id="chat">
+    <div class="msg bienvenida">Hola. Puedo procesar solicitudes de registro como proveedor. Casos disponibles: co-industrias-delta, ec-corp-andina, hn-agroexport-sula, pa-logistica-istmo.
+      <div class="chips">
+        <button data-texto='Procesa el caso "ec-corp-andina". Dime qué campos quedaron llenos, cuáles faltan, si el paquete está listo para firma y qué soportes debo actualizar. No envíes nada todavía.'>Procesar ec-corp-andina</button>
+        <button data-texto='Procesa el caso "co-industrias-delta" con fecha de referencia 2026-09-03.'>Procesar co-industrias-delta</button>
+      </div>
+    </div>
+  </div>
+  <div id="pensando">Procesando...</div>
+</main>
+
+<form id="formulario">
+  <textarea id="entrada" rows="2" placeholder="Escribe tu mensaje (Enter para enviar)"></textarea>
+  <button class="primario" type="submit">Enviar</button>
+</form>
+
+<script>
+  let sessionId = crypto.randomUUID()
+  const chat = document.getElementById("chat")
+  const entrada = document.getElementById("entrada")
+  const pensando = document.getElementById("pensando")
+
+  const selector = document.getElementById("proveedor")
+  const etiquetaModelo = document.getElementById("modelo")
+  let proveedores = []
+
+  // La elección se recuerda en este navegador; si el almacenamiento no está disponible, se ignora.
+  const recordar = v => { try { localStorage.setItem("proveedor", v) } catch {} }
+  const recordado = () => { try { return localStorage.getItem("proveedor") } catch { return null } }
+
+  function mostrarModelo() {
+    const p = proveedores.find(x => x.id === selector.value)
+    etiquetaModelo.textContent = p ? `Responde ${p.etiqueta} (${p.model})` : ""
+  }
+
+  fetch("/api/health").then(r => r.json()).then(h => {
+    proveedores = h.providers || [{ id: h.provider, etiqueta: h.provider, model: h.model }]
+    selector.innerHTML = proveedores.map(p => `<option value="${escapar(p.id)}">${escapar(p.etiqueta)}</option>`).join("")
+    const previo = recordado()
+    selector.value = proveedores.some(p => p.id === previo) ? previo : h.provider
+    mostrarModelo()
+  }).catch(() => { etiquetaModelo.textContent = "No se pudo conectar con el servidor" })
+
+  selector.onchange = () => { recordar(selector.value); mostrarModelo() }
+
+  // Escapa HTML y convierte rutas out/... en enlaces de descarga
+  const escapar = t => t.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]))
+  const conEnlaces = t => escapar(t)
+    .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    .replace(/\bout\/[\w\-./]*\w/g, r => `<a href="/${r}" target="_blank">${r}</a>`)
+
+  function agregar(html, clase, etiqueta = "div") {
+    const nodo = document.createElement(etiqueta)
+    nodo.className = clase
+    nodo.innerHTML = html
+    chat.appendChild(nodo)
+    nodo.scrollIntoView({ behavior: "smooth" })
+    return nodo
+  }
+
+  // Cada llamada a herramienta se muestra plegada: nombre, argumentos y resultado resumido
+  function mostrarHerramienta(t) {
+    const estado = t.ok ? '<span class="ok-tag">ok</span>' : '<span class="err-tag">error</span>'
+    agregar(`<summary>${escapar(t.nombre)} ${estado}</summary>
+      <pre>Argumentos: ${escapar(JSON.stringify(t.args))}</pre>
+      <pre>Resultado: ${escapar(t.resumen)}</pre>`, "tool", "details")
+  }
+
+  async function enviar(texto) {
+    if (!texto.trim()) return
+    agregar(escapar(texto), "msg usuario")
+    entrada.value = ""
+    pensando.style.display = "block"
+    try {
+      const r = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ sessionId, message: texto, provider: selector.value || undefined }),
+      })
+      const datos = await r.json()
+      if (!r.ok) throw new Error(datos.error || `Error ${r.status}`)
+      datos.toolCalls.forEach(mostrarHerramienta)
+      const nombre = (proveedores.find(p => p.id === datos.provider) || {}).etiqueta || datos.provider
+      const quien = datos.provider ? `<span class="quien">${escapar(nombre)} (${escapar(datos.model)})</span>` : ""
+      const burbuja = agregar(quien + conEnlaces(datos.reply), datos.needsConfirmation ? "msg confirmar" : "msg")
+      if (datos.needsConfirmation) {
+        const acciones = document.createElement("div")
+        acciones.className = "acciones"
+        acciones.innerHTML = '<button class="primario">Sí, confirmo</button><button>No, no envíes nada</button>'
+        acciones.querySelectorAll("button").forEach(b => b.onclick = () => { acciones.remove(); enviar(b.textContent) })
+        burbuja.appendChild(acciones)
+      }
+    } catch (e) {
+      agregar(`No se pudo comunicar con el servidor: ${escapar(e.message)}`, "msg error")
+    } finally {
+      pensando.style.display = "none"
+    }
+  }
+
+  document.getElementById("formulario").onsubmit = e => { e.preventDefault(); enviar(entrada.value) }
+  entrada.onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(entrada.value) } }
+  document.querySelectorAll(".chips button").forEach(b => b.onclick = () => enviar(b.dataset.texto))
+  document.getElementById("nueva").onclick = () => {
+    sessionId = crypto.randomUUID()
+    chat.querySelectorAll(".msg:not(:first-child), details.tool").forEach(n => n.remove())
+  }
+</script>
+</body>
+</html>
